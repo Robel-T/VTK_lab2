@@ -15,38 +15,54 @@ import vtk
 # pipeline (it is a source process object); it produces data (output type is
 # vtkPolyData) which other filters may process.
 #
-cone = vtk.vtkConeSource()
-cone.SetHeight( 3.0 )
-cone.SetRadius( 1.0 )
-cone.SetResolution( 10 )
+points = vtk.vtkPoints()
+polys = vtk.vtkCellArray()
+scalars = vtk.vtkFloatArray()
+cube = vtk.vtkPolyData()
 
-#
-# In this example we terminate the pipeline with a mapper process object.
-# (Intermediate filters such as vtkShrinkPolyData could be inserted in
-# between the source and the mapper.)  We create an instance of
-# vtkPolyDataMapper to map the polygonal data into graphics primitives. We
-# connect the output of the cone souece to the input of this mapper.
-#
-coneMapper = vtk.vtkPolyDataMapper()
-coneMapper.SetInputConnection(cone.GetOutputPort())
 
-#
-# Create an actor to represent the cone. The actor orchestrates rendering of
-# the mapper's graphics primitives. An actor also refers to properties via a
-# vtkProperty instance, and includes an internal transformation matrix. We
-# set this actor's mapper to be coneMapper which we created above.
-#
-coneActor = vtk.vtkActor()
-coneActor.SetMapper(coneMapper)
+x = [(-0.5, -0.5, -0.5), (0.5, -0.5, -0.5), (0.5, 0.5, -0.5), (-0.5, 0.5, -0.5), (-0.5, -0.5, 0.5), (0.5, -0.5, 0.5),
+     (0.5, 0.5, 0.5), (-0.5, 0.5, 0.5)]
+pts = [(0, 1, 2, 3), (0, 1, 5, 4), (0, 3, 7, 4), (1, 2, 6, 5), (3, 2, 6, 7), (4, 5, 6, 7)]
 
-#
+for i in range(0, 8):
+    points.InsertPoint(i, x[i])
+for i in range(0, 6):
+    polys.InsertNextCell(4,pts[i])
+for i in range(0, 8):
+    scalars.InsertTuple1(i, i)
+
+cube.SetPoints(points)
+cube.SetPolys(polys)
+cube.GetPointData().SetScalars(scalars)
+
+file = vtk.vtkPolyDataWriter()
+file.SetInputData(cube)
+file.SetFileName("cube.vtk")
+file.Write()
+
+reader = vtk.vtkPolyDataReader()
+reader.SetFileName("cube.vtk")
+reader.Update()
+
+
+cubeMapper = vtk.vtkPolyDataMapper()
+cubeMapper.SetScalarRange(0,5)
+cubeMapper.SetInputConnection(reader.GetOutputPort())
+
+cubeActor = vtk.vtkActor()
+cubeActor.SetMapper(cubeMapper)
+
+
+
+
 # Create the Renderer and assign actors to it. A renderer is like a
 # viewport. It is part or all of a window on the screen and it is responsible
 # for drawing the actors it has.  We also set the background color here.
 #
 ren1 = vtk.vtkRenderer()
-ren1.AddActor(coneActor)
-ren1.SetBackground(0.1, 0.2, 0.4)
+ren1.AddActor(cubeActor)
+ren1.SetBackground(0.1, 0.1, 0.1)
 
 #
 # Finally we create the render window which will show up on the screen
