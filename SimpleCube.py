@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+##
+# Student: Jael Dubey & Robel Teklehaimanot
+# Date   : 11.04.2020
+# File   : SimpleCube.py
+##
 
 #
 # This example introduces the concepts of user interaction with VTK.
@@ -23,7 +27,10 @@ cube = vtk.vtkPolyData()
 
 x = [(-0.5, -0.5, -0.5), (0.5, -0.5, -0.5), (0.5, 0.5, -0.5), (-0.5, 0.5, -0.5), (-0.5, -0.5, 0.5), (0.5, -0.5, 0.5),
      (0.5, 0.5, 0.5), (-0.5, 0.5, 0.5)]
-pts = [(0, 1, 2, 3), (0, 1, 5, 4), (0, 3, 7, 4), (1, 2, 6, 5), (3, 2, 6, 7), (4, 5, 6, 7)]
+
+pts = [(3, 2, 1, 0), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+
+ptsTriangle = [(3,2,0),(2,1,0),(4,5,7),(5,6,7),(0,1,4),(1,5,4),(1,2,5),(2,6,5),(2,3,6),(3,7,6),(3,0,7),(0,4,7)]
 
 for i in range(0, 8):
     points.InsertPoint(i, x[i])
@@ -38,23 +45,24 @@ cube.GetPointData().SetScalars(scalars)
 
 file = vtk.vtkPolyDataWriter()
 file.SetInputData(cube)
-file.SetFileName("cube.vtk")
+file.SetFileName("test.vtk")
 file.Write()
 
 reader = vtk.vtkPolyDataReader()
-reader.SetFileName("cube.vtk")
+reader.SetFileName("test.vtk")
 reader.Update()
 
 
 cubeMapper = vtk.vtkPolyDataMapper()
-cubeMapper.SetScalarRange(0,5)
+cubeMapper.SetScalarRange(0,4)
 cubeMapper.SetInputConnection(reader.GetOutputPort())
 
 cubeActor = vtk.vtkActor()
 cubeActor.SetMapper(cubeMapper)
 
-
-
+# Nous permet de voir si les faces sont dans les bons côtés
+#cubeActor.GetProperty().BackfaceCullingOn()
+#cubeActor.GetProperty().FrontfaceCullingOn()
 
 # Create the Renderer and assign actors to it. A renderer is like a
 # viewport. It is part or all of a window on the screen and it is responsible
