@@ -1,68 +1,68 @@
 ##
 # Student: Jael Dubey & Robel Teklehaimanot
 # Date   : 11.04.2020
+# Title  : Lab 2 - Simple Cube
 # File   : SimpleCube.py
 ##
 
-#
-# This example introduces the concepts of user interaction with VTK.
-# First, a different interaction style (than the default) is defined.
-# Second, the interaction is started.
-#
-#
-
 import vtk
 
-#
-# Next we create an instance of vtkConeSource and set some of its
-# properties. The instance of vtkConeSource "cone" is part of a visualization
-# pipeline (it is a source process object); it produces data (output type is
-# vtkPolyData) which other filters may process.
-#
+# Create the VTK datasets
 points = vtk.vtkPoints()
 polys = vtk.vtkCellArray()
 scalars = vtk.vtkFloatArray()
 cube = vtk.vtkPolyData()
 
+# The coordinates for a cube centred in 0, 0, 0
 x = [(-0.5, -0.5, -0.5), (0.5, -0.5, -0.5), (0.5, 0.5, -0.5), (-0.5, 0.5, -0.5), (-0.5, -0.5, 0.5), (0.5, -0.5, 0.5),
      (0.5, 0.5, 0.5), (-0.5, 0.5, 0.5)]
 
+# Points for cube with quadrilatere
 pts = [(3, 2, 1, 0), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
 
-ptsTriangle = [(3, 2, 0), (2, 1, 0), (4, 5, 7), (5, 6, 7), (0, 1, 4), (1, 5, 4), (1, 2, 5), (2, 6, 5), (2, 3, 6),
-               (3, 7, 6), (3, 0, 7), (0, 4, 7)]
+# Points for cube with triangle
+# pts = [(3, 2, 0), (2, 1, 0), (4, 5, 7), (5, 6, 7), (0, 1, 4), (1, 5, 4), (1, 2, 5), (2, 6, 5), (2, 3, 6),
+#               (3, 7, 6), (3, 0, 7), (0, 4, 7)]
 
-ptsTriangleStrip = [(1, 0, 2, 3, 7, 0, 4, 1, 5, 2, 6, 7, 5, 4)]
+# Points for cube with triangle strip
+# pts = [(1, 0, 2, 3, 7, 0, 4, 1, 5, 2, 6, 7, 5, 4)]
 
-for i in range(0, 8):
+for i in range(8):
     points.InsertPoint(i, x[i])
-for i in range(0, len(ptsTriangleStrip)):
-    polys.InsertNextCell(14, ptsTriangleStrip[i])
-for i in range(0, 8):
+for i in range(len(pts)):
+    polys.InsertNextCell(len(pts[i]), pts[i])
+for i in range(8):
     scalars.InsertTuple1(i, i)
 
 cube.SetPoints(points)
-#cube.SetPolys(polys)
-cube.SetStrips(polys)
+
+# Change if you make a cube with triangle strip
+cube.SetPolys(polys)
+#cube.SetStrips(polys)
+
 cube.GetPointData().SetScalars(scalars)
 
+# Write .vtk file
 file = vtk.vtkPolyDataWriter()
 file.SetInputData(cube)
-file.SetFileName("cubeWithTriangleStrip.vtk")
+file.SetFileName("cube.vtk")
 file.Write()
 
+# Read the file
 reader = vtk.vtkPolyDataReader()
-reader.SetFileName("cubeWithTriangleStrip.vtk")
+reader.SetFileName("cube.vtk")
 reader.Update()
 
+# Map the file
 cubeMapper = vtk.vtkPolyDataMapper()
-cubeMapper.SetScalarRange(0, 4)
+cubeMapper.SetScalarRange(0, 7)
 cubeMapper.SetInputConnection(reader.GetOutputPort())
 
+# Create actor
 cubeActor = vtk.vtkActor()
 cubeActor.SetMapper(cubeMapper)
 
-# Nous permet de voir si les faces sont dans les bons côtés
+# Check the faces side
 # cubeActor.GetProperty().BackfaceCullingOn()
 # cubeActor.GetProperty().FrontfaceCullingOn()
 
